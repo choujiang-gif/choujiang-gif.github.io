@@ -1,0 +1,559 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CF影翼共启 厂牌联动 - 同步官方数据 模拟测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft Yahei", sans-serif; }
+        body { background: #0a1029; color: #fff; padding: 15px; }
+        .container { max-width: 1200px; margin: 0 auto; display: none; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 24px; color: #2b87ff; }
+        .section { margin-bottom: 25px; }
+        .section h2 { font-size: 18px; margin-bottom: 15px; color: #ffd700; padding-bottom: 5px; border-bottom: 1px solid #2b87ff; }
+        .user-info { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 10px; background: #1a2356; border-radius: 8px; }
+        .user-info .info-item { text-align: center; }
+        .user-info .label { font-size: 14px; color: #99ccff; margin-bottom: 5px; }
+        .user-info .num { font-size: 20px; font-weight: bold; color: #ffd700; }
+        .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .btn:hover { opacity: 0.9; transform: scale(0.98); }
+        .btn-blue { background: #2b87ff; color: #fff; }
+        .btn-yellow { background: #ffd700; color: #0a1029; }
+        .btn-red { background: #ff4757; color: #fff; }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-group .btn { margin-bottom: 0; flex: 1; padding: 12px 5px; }
+
+        /* 抽奖池布局：6+6+5 固定行数排列 */
+        .prize-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .prize-row { display: flex; gap: 8px; }
+        .prize-item { background: #1a2356; padding: 10px; border-radius: 8px; text-align: center; flex: 1; min-width: 0; }
+        .prize-item img { 
+            width: 100%; /* 适配容器宽度 */
+            max-width: 80px; /* 参考原图片大小 */
+            height: auto; /* 保持宽高比 */
+            margin-bottom: 8px; 
+        }
+        .prize-item .name { font-size: 12px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .prize-item .prob { font-size: 10px; color: #99ccff; margin-top: 3px; }
+
+        /* 兑换池布局：5+5+5 固定行数排列 */
+        .exchange-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .exchange-row { display: flex; gap: 8px; }
+        .exchange-item { background: #1a2356; padding: 10px; border-radius: 8px; text-align: center; flex: 1; min-width: 0; }
+        .exchange-item img { 
+            width: 100%; 
+            max-width: 80px; /* 参考原图片大小 */
+            height: auto; 
+            margin-bottom: 8px; 
+        }
+        .exchange-item .name { font-size: 12px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .exchange-item .score { font-size: 10px; color: #ffd700; margin: 5px 0; }
+        .exchange-item .btn { padding: 6px 0; font-size: 12px; margin-bottom: 0; }
+
+        .storage-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
+        .storage-item { background: #1a2356; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+        .storage-item img { 
+            width: 50px; 
+            height: auto; 
+        }
+        .storage-item .name { font-size: 12px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .storage-item .btn { padding: 5px 8px; font-size: 11px; margin-bottom: 0; width: auto; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 999; }
+        .modal-content { background: #101a42; padding: 25px 15px; border-radius: 10px; border: 2px solid #2b87ff; text-align: center; width: 90%; max-width: 350px; }
+        .modal-content h3 { font-size: 18px; margin-bottom: 15px; }
+        .modal-prize img { 
+            width: 100%; 
+            max-width: 120px; 
+            height: auto; 
+            margin: 15px 0; 
+        }
+        .modal-prize .name { font-size: 16px; color: #ffd700; }
+        .empty-tip { text-align: center; padding: 20px; color: #99ccff; font-size: 14px; }
+
+        /* 密码验证弹窗样式 */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a1029;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 9999;
+        }
+        .password-modal .title {
+            font-size: 24px;
+            color: #2b87ff;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .password-modal .subtitle {
+            font-size: 16px;
+            color: #99ccff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .password-modal .link-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ffd700;
+            color: #0a1029;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .password-modal .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .password-modal input {
+            padding: 12px 15px;
+            border: 1px solid #2b87ff;
+            border-radius: 6px;
+            background: #1a2356;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+        .password-modal .submit-btn {
+            padding: 12px;
+            background: #2b87ff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .password-modal .error-tip {
+            color: #ff4757;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+            margin-top: 10px;
+        }
+
+        /* 手机端适配 */
+        @media (max-width: 500px) {
+            .prize-row, .exchange-row { flex-wrap: wrap; }
+            .prize-row .prize-item { flex: 0 0 calc(16.666% - 7px); } /* 6个/行 适配 */
+            .exchange-row .exchange-item { flex: 0 0 calc(20% - 7px); } /* 5个/行 适配 */
+            
+            /* 密码验证框手机端适配 */
+            .password-modal .title { font-size: 20px; }
+            .password-modal .subtitle { font-size: 14px; }
+            .password-modal .input-group { max-width: 100%; }
+            
+            /* 图片手机端适配 */
+            .prize-item img, .exchange-item img { max-width: 60px; }
+            .modal-prize img { max-width: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 密码验证弹窗 -->
+    <div class="password-modal" id="passwordModal">
+        <div class="title">影翼共启 厂牌联动</div>
+        <div class="subtitle">网页内容仅供参考，内部测试页面，请勿泄露链接</div>
+        <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" target="_blank" class="link-btn">点击获取访问密码</a>
+        <div class="input-group">
+            <input type="password" id="passwordInput" placeholder="请输入访问密码">
+            <button class="submit-btn" onclick="checkPassword()">验证并进入</button>
+            <div class="error-tip" id="errorTip">密码错误，请重新输入！</div>
+        </div>
+    </div>
+
+    <!-- 活动主内容（初始隐藏） -->
+    <div class="container" id="mainContainer">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>CF影翼共启 厂牌联动 - 模拟测试</h1>
+        </div>
+
+        <!-- 用户信息 -->
+        <div class="user-info">
+            <div class="info-item">
+                <div class="label">剩余钥匙</div>
+                <div class="num" id="keyCount">0</div>
+            </div>
+            <div class="info-item">
+                <div class="label">当前积分</div>
+                <div class="num" id="scoreCount">0</div>
+            </div>
+            <div class="info-item">
+                <div class="label">暂存箱道具</div>
+                <div class="num" id="storageCount">0</div>
+            </div>
+        </div>
+
+        <!-- 充值区域 -->
+        <div class="section recharge-area">
+            <h2>虚拟充值（钥匙购买）</h2>
+            <button class="btn btn-blue" onclick="recharge(10, 1)">充值10 JB 购买 1把钥匙</button>
+            <button class="btn btn-blue" onclick="recharge(100, 11)">充值100 JB 购买 11把钥匙</button>
+            <button class="btn btn-blue" onclick="recharge(500, 55)">充值500 JB 购买 55把钥匙</button>
+        </div>
+
+        <!-- 抽奖区域（6+6+5排列） -->
+        <div class="section lottery-area">
+            <h2>抽奖区-影翼共启 厂牌联动</h2>
+            <div class="btn-group">
+                <button class="btn btn-yellow" onclick="lottery(1)">抽一次</button>
+                <button class="btn btn-red" onclick="lottery(10)">抽十次</button>
+            </div>
+            <div class="prize-container" id="prizeContainer"></div>
+        </div>
+
+        <!-- 暂存箱区域 -->
+        <div class="section storage-area">
+            <h2>暂存箱（可领取/分解成钥匙）</h2>
+            <div id="storageList" class="storage-list">
+                <div class="empty-tip">暂存箱为空</div>
+            </div>
+        </div>
+
+        <!-- 积分兑换区域（5+5+5排列） -->
+        <div class="section exchange-area">
+            <h2>积分兑换</h2>
+            <div class="exchange-container" id="exchangeContainer"></div>
+        </div>
+
+        <!-- 已拥有道具区域 -->
+        <div class="section owned-area">
+            <h2>已拥有道具（游戏仓库）</h2>
+            <div id="ownedList" class="storage-list">
+                <div class="empty-tip">暂无已拥有道具</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 抽奖结果弹窗 -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h3>抽奖结果</h3>
+            <div class="modal-prize" id="modalPrize"></div>
+            <button class="btn btn-blue" onclick="closeModal()">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        // 默认密码（你可以自行修改）
+        const CORRECT_PASSWORD = "xiaozhi";
+
+        // 1. 核心配置：前12个道具独立分解钥匙数量（在这里修改！）
+        // 索引对应前12个道具，值为分解该道具获得的钥匙数量
+        const DECOMPOSE_KEY_CONFIG = {
+            1: 15,    // G36C-幻影 分解获得5把钥匙
+            2: 15,    // 龙啸-幻灵之哮 分解获得4把钥匙
+            3: 12,    // 麒麟刺-量子聚变 分解获得6把钥匙
+            4: 12,    // 幻神-降龙 分解获得3把钥匙
+            5: 8,    // 麒麟刺-甜蜜糖果 分解获得2把钥匙
+            6: 8,    // M4A1-雷霆 分解获得1把钥匙
+            7: 6,    // AK47-火麒麟 分解获得1把钥匙
+            8: 6,    // 巴雷特-毁灭 分解获得1把钥匙
+            9: 5,    // 屠龙-秘银 分解获得1把钥匙
+            10: 2,   // 修罗-天神 分解获得1把钥匙
+            11: 1,   // 王者之心 分解获得8把钥匙
+            12: 0    // 王者之魄 分解获得7把钥匙
+        };
+        // ==================================================================
+
+        // 密码验证函数
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            const errorTip = document.getElementById('errorTip');
+            
+            if (input === CORRECT_PASSWORD) {
+                // 密码正确，隐藏验证框，显示主内容
+                document.getElementById('passwordModal').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                // 初始化活动数据
+                initData();
+            } else {
+                // 密码错误，显示提示
+                errorTip.style.display = 'block';
+                // 3秒后隐藏错误提示
+                setTimeout(() => {
+                    errorTip.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 监听回车键验证密码
+        document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // 分解道具获得钥匙（根据道具ID匹配分解数量）
+        function decomposeToKey(index) {
+            const data = userData;
+            const p = data.storage[index];
+            // 获取该道具对应的分解钥匙数量（默认1把，防止配置缺失）
+            const decomposeNum = DECOMPOSE_KEY_CONFIG[p.id] || 1;
+            
+            // 移除暂存箱道具
+            data.storage.splice(index, 1);
+            // 增加钥匙（使用配置的数量）
+            data.keys += decomposeNum;
+            saveData();
+
+            alert(`分解成功！${p.name}已分解，获得${decomposeNum}把钥匙`);
+        }
+
+        // 17个抽奖奖品：前12个道具，最后5个积分（13-17）
+        const PRIZES = [
+            { id: 1, name: "G36C-幻影", img: "/images5/popdjsh_1.png", prob: 0.40, score: 900 },
+            { id: 2, name: "隼", img: "/images5/popdjsh_2.png", prob: 0.20, score: 850 },
+            { id: 3, name: "QBZ191-银翼", img: "/images5/popdjsh_3.png", prob: 0.40, score: 880 },
+            { id: 4, name: "研", img: "/images5/popdjsh_4.png", prob: 0.25, score: 600 },
+            { id: 5, name: "幻影-量子聚变 皮肤", img: "/images5/popdjsh_5.png", prob: 0.40, score: 550 },
+            { id: 6, name: "白虎-量子聚变 皮肤", img: "/images5/popdjsh_6.png", prob: 0.40, score: 450 },
+            { id: 7, name: "麒麟刺-量子聚变 皮肤", img: "/images5/popdjsh_7.png", prob: 0.50, score: 480 },
+            { id: 8, name: "玄武-幻灵装甲 皮肤", img: "/images5/popdjsh_8.png", prob: 0.50, score: 470 },
+            { id: 9, name: "龙啸-幻灵之哮 皮肤", img: "/images5/popdjsh_9.png", prob: 0.60, score: 420 },
+            { id: 10, name: "机械猎手-幻灵猎姬 皮肤", img: "/images5/popdjsh_10.png", prob: 0.80, score: 410 },
+            { id: 11, name: "击杀图标-幻灵", img: "/images5/popdjsh_11.png", prob: 1.50, score: 1200 },
+            { id: 12, name: "王者之石x1", img: "/images5/popdjsh_12.png", prob: 6.85, score: 1180 },
+            // 最后5个积分（保持不动）
+            { id: 13, name: "积分×100", img: "/images5/popdjsh_13.png", prob: 0.20, score: 100 },
+            { id: 14, name: "积分×15", img: "/images5/popdjsh_14.png", prob: 2.00, score: 15 },
+            { id: 15, name: "积分×9", img: "/images5/popdjsh_15.png", prob: 10.00, score: 9 },
+            { id: 16, name: "积分×8", img: "/images5/popdjsh_16.png", prob: 35.00, score: 8 },
+            { id: 17, name: "积分×7", img: "/images5/popdjsh_17.png", prob: 40.00, score: 7 }
+        ];
+
+        // 15个兑换道具（无积分，保持不动）
+        const EXCHANGE_PRIZES = [
+            { id: 1, name: "G36C-幻影", img: "/images5/dhdj1.png", needScore: 1488 },
+            { id: 2, name: "隼", img: "/images5/dhdj2.png", needScore: 1388 },
+            { id: 3, name: "QBZ191-银翼", img: "/images5/dhdj3.png", needScore: 1188 },
+            { id: 4, name: "研", img: "/images5/dhdj4.png", needScore: 1088 },
+            { id: 5, name: "幻影-量子聚变 皮肤", img: "/images5/dhdj5.png", needScore: 728 },
+            { id: 6, name: "白虎-量子聚变 皮肤", img: "/images5/dhdj6.png", needScore: 728 },
+            { id: 7, name: "麒麟刺-量子聚变 皮肤", img: "/images5/dhdj7.png", needScore: 528 },
+            { id: 8, name: "玄武-幻灵装甲 皮肤", img: "/images5/dhdj8.png", needScore: 528 },
+            { id: 9, name: "龙啸-幻灵之哮 皮肤", img: "/images5/dhdj9.png", needScore: 388 },
+            { id: 10, name: "机械猎手-幻灵猎姬 皮肤", img: "/images5/dhdj10.png", needScore: 188 },
+            { id: 11, name: "击杀图标-幻灵", img: "/images5/dhdj11.png", needScore: 68 },
+            { id: 12, name: "交易所钥匙x5", img: "/images5/dhdj12.png", needScore: 15 },
+            { id: 18, name: "属性变更券x5", img: "/images5/dhdj13.png", needScore: 15 },
+            { id: 19, name: "交易所钥匙x1", img: "/images5/dhdj14.png", needScore: 3 },
+            { id: 20, name: "属性变更券x1", img: "/images5/dhdj15.png", needScore: 3 }
+        ];
+
+        // 2. 本地数据管理
+        let userData = { keys: 0, score: 0, storage: [], owned: [] };
+        // 初始化数据
+        function initData() {
+            const saved = localStorage.getItem('cfLottery');
+            if (saved) userData = JSON.parse(saved);
+            updateUI();
+        }
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('cfLottery', JSON.stringify(userData));
+            updateUI();
+        }
+
+        // 3. UI更新（固定排版+手机适配）
+        function updateUI() {
+            // 更新顶部数值
+            document.getElementById('keyCount').innerText = userData.keys;
+            document.getElementById('scoreCount').innerText = userData.score;
+            document.getElementById('storageCount').innerText = userData.storage.length;
+
+            // 渲染抽奖奖品（6+6+5排列）
+            renderPrizeList();
+            // 渲染兑换道具（5+5+5排列）
+            renderExchangeList();
+            // 渲染暂存箱
+            renderStorageList();
+            // 渲染已拥有道具
+            renderOwnedList();
+        }
+
+        // 渲染抽奖池：按6+6+5拆分排列
+        function renderPrizeList() {
+            const container = document.getElementById('prizeContainer');
+            container.innerHTML = '';
+            const totalProb = PRIZES.reduce((s, p) => s + p.prob, 0);
+            
+            // 拆分奖品为3行：第一行6个，第二行6个，第三行5个
+            const row1 = PRIZES.slice(0, 6);
+            const row2 = PRIZES.slice(6, 12);
+            const row3 = PRIZES.slice(12, 17);
+
+            // 生成每行DOM
+            [row1, row2, row3].forEach(row => {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'prize-row';
+                row.forEach(p => {
+                    const prob = (p.prob / totalProb * 100).toFixed(2);
+                    const item = document.createElement('div');
+                    item.className = 'prize-item';
+                    item.innerHTML = `<img src="${p.img}"><div class="name">${p.name}</div><div class="prob">${prob}%</div>`;
+                    rowEl.appendChild(item);
+                });
+                container.appendChild(rowEl);
+            });
+        }
+
+        // 渲染兑换池：按5+5+5拆分排列
+        function renderExchangeList() {
+            const container = document.getElementById('exchangeContainer');
+            container.innerHTML = '';
+            
+            // 拆分道具为3行：每行5个
+            const row1 = EXCHANGE_PRIZES.slice(0, 5);
+            const row2 = EXCHANGE_PRIZES.slice(5, 10);
+            const row3 = EXCHANGE_PRIZES.slice(10, 15);
+
+            // 生成每行DOM
+            [row1, row2, row3].forEach(row => {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'exchange-row';
+                row.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'exchange-item';
+                    item.innerHTML = `<img src="${p.img}"><div class="name">${p.name}</div><div class="score">需${p.needScore}积分</div><button class="btn btn-blue" onclick="exchange(${p.id})">兑换</button>`;
+                    rowEl.appendChild(item);
+                });
+                container.appendChild(rowEl);
+            });
+        }
+
+        // 渲染暂存箱
+        function renderStorageList() {
+            const list = document.getElementById('storageList');
+            if (userData.storage.length === 0) {
+                list.innerHTML = '<div class="empty-tip">暂存箱为空</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            userData.storage.forEach((p, i) => {
+                const item = document.createElement('div');
+                item.className = 'storage-item';
+                item.innerHTML = `<img src="${p.img}"><div class="name">${p.name}</div><button class="btn btn-blue" onclick="receive(${i})">领取</button><button class="btn btn-red" onclick="decomposeToKey(${i})">分解</button>`;
+                list.appendChild(item);
+            });
+        }
+
+        // 渲染已拥有道具（游戏仓库）
+        function renderOwnedList() {
+            const list = document.getElementById('ownedList');
+            if (userData.owned.length === 0) {
+                list.innerHTML = '<div class="empty-tip">暂无已拥有道具</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            userData.owned.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'storage-item';
+                item.innerHTML = `<img src="${p.img}"><div class="name">${p.name}</div>`;
+                list.appendChild(item);
+            });
+        }
+
+        // 4. 核心功能
+        // 充值
+        function recharge(qb, keys) {
+            userData.keys += keys;
+            saveData();
+            alert(`充值成功！获得${keys}把钥匙`);
+        }
+
+        // 抽奖
+        function lottery(times) {
+            if (userData.keys < times) { alert('钥匙不足！'); return; }
+            userData.keys -= times;
+            const results = [];
+            const totalProb = PRIZES.reduce((s, p) => s + p.prob, 0);
+
+            for (let i = 0; i < times; i++) {
+                const random = Math.random() * totalProb;
+                let sum = 0;
+                for (const p of PRIZES) {
+                    sum += p.prob;
+                    if (random <= sum) {
+                        results.push(p);
+                        break;
+                    }
+                }
+            }
+
+            // 处理结果：积分加积分，道具进暂存箱
+            results.forEach(p => {
+                if (p.name.includes('积分')) {
+                    userData.score += p.score;
+                } else {
+                    userData.storage.push(p);
+                }
+            });
+
+            saveData();
+            showResult(results);
+        }
+
+        // 显示抽奖结果
+        function showResult(results) {
+            const modal = document.getElementById('resultModal');
+            const prizeEl = document.getElementById('modalPrize');
+            if (results.length === 1) {
+                const p = results[0];
+                prizeEl.innerHTML = `<img src="${p.img}"><div class="name">${p.name}</div>`;
+            } else {
+                let html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">';
+                results.forEach(p => html += `<div><img src="${p.img}" style="width:40px;height:40px;"><div class="name" style="font-size:12px;">${p.name}</div></div>`);
+                html += '</div>';
+                prizeEl.innerHTML = html;
+            }
+            modal.style.display = 'flex';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        // 领取暂存箱道具
+        function receive(index) {
+            const p = userData.storage[index];
+            // 移除暂存箱，添加到已拥有
+            userData.storage.splice(index, 1);
+            userData.owned.push(p);
+            saveData();
+            alert(`领取成功！${p.name}已加入游戏仓库`);
+        }
+
+        // 积分兑换道具
+        function exchange(id) {
+            const prize = EXCHANGE_PRIZES.find(p => p.id === id);
+            if (!prize) return;
+
+            if (userData.score < prize.needScore) {
+                alert('积分不足，无法兑换！');
+                return;
+            }
+
+            // 扣除积分，添加到已拥有
+            userData.score -= prize.needScore;
+            userData.owned.push(prize);
+            saveData();
+            alert(`兑换成功！${prize.name}已加入游戏仓库`);
+        }
+    </script>
+</body>
+</html>

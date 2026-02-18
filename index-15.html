@@ -1,0 +1,1008 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>年度MVP+传奇皮肤 - 模拟测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+
+        body {
+            background-color: #f5e9d8;
+            color: #333;
+            padding: 10px;
+            line-height: 1.5;
+        }
+
+        /* 密码验证页面样式 */
+        #passwordPage {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        #passwordPage h1 {
+            color: #c8102e;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        #passwordInput {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #verifyBtn {
+            background-color: #c8102e;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+
+        #verifyBtn:hover {
+            background-color: #a80e27;
+        }
+
+        .link-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            text-decoration: none;
+            color: #fff;
+            background-color: #0066cc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .link-btn:hover {
+            background-color: #0052a3;
+        }
+
+        .copy-btn {
+            background-color: #28a745;
+        }
+
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+
+        /* 主页面样式（初始隐藏） */
+        #mainPage {
+            display: none;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px 10px;
+            background-color: #c8102e;
+            color: #fff;
+            border-radius: 8px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+        }
+
+        .purchase-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .purchase-section h2 {
+            color: #c8102e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .key-btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .key-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 10px;
+            background-color: #ff9800;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .key-btn:hover {
+            background-color: #e68900;
+        }
+
+        .stats {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .stats span {
+            color: #c8102e;
+            font-weight: bold;
+        }
+
+        .clear-cache {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .clear-cache:hover {
+            background-color: #c82333;
+        }
+
+        .draw-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .draw-section h2 {
+            color: #c8102e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .draw-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .draw-btn {
+            flex: 1;
+            padding: 15px;
+            background-color: #c8102e;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .draw-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .draw-btn:hover:not(:disabled) {
+            background-color: #a80e27;
+        }
+
+        .result-area {
+            margin-bottom: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .single-result {
+            width: 100%;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+            color: #c8102e;
+            font-weight: bold;
+            border: 1px solid #eee;
+        }
+
+        .ten-result {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .result-item {
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid #eee;
+        }
+
+        .prize-pool {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .prize-pool h2 {
+            color: #c8102e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .prize-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .prize-item {
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid #eee;
+        }
+
+        .prize-item img {
+            width: 100%;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 5px;
+            background-color: #eee;
+            border-radius: 3px;
+            /* 图片加载失败时的样式 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .prize-item img::after {
+            content: "图片加载中";
+            font-size: 10px;
+        }
+
+        .storage-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .storage-box h2 {
+            color: #c8102e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .storage-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .storage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .storage-item:last-child {
+            border-bottom: none;
+        }
+
+        .storage-actions button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .decompose-btn {
+            background-color: #ff9800;
+            color: #fff;
+        }
+
+        .decompose-btn:hover {
+            background-color: #e68900;
+        }
+
+        .send-btn {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .send-btn:hover {
+            background-color: #218838;
+        }
+
+        .stats-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .stats-section h2 {
+            color: #c8102e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+
+        .stat-item span {
+            color: #c8102e;
+            font-weight: bold;
+        }
+
+        .disclaimer {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            line-height: 1.6;
+        }
+
+        .disclaimer h3 {
+            margin-bottom: 10px;
+            color: #856404;
+            font-size: 14px;
+        }
+
+        /* 移动端适配优化 */
+        @media (max-width: 600px) {
+            .prize-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .ten-result {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .key-btn-group {
+                flex-direction: column;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            #passwordPage {
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .result-area {
+                min-height: 60px;
+            }
+            .single-result {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- 密码验证页面 -->
+    <div id="passwordPage">
+        <h1>年度MVP+传奇皮肤 - Test</h1>
+        <input type="password" id="passwordInput" placeholder="请输入访问密码">
+        <button id="verifyBtn">验证密码</button>
+        
+        <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=aT7hGXvJFjLO-pnrcD8dpdgDqfukLDkJ&authKey=Y7jGftSsZEra3UtJZjqGYmIN4UUJxqDEQbqafmcV%2BhuXonYbSftH4M8VOcotm2ZL&noverify=0&group_code=875198122" 
+           class="link-btn" target="_blank">点击获取访问密码</a>
+        
+        <a href="https://act.daoju.qq.com/act/a20260123cfhfirst/index.html" 
+           class="link-btn" target="_blank">邀请码使用活动入口【虹运连连】点击访问</a>
+        
+        <button class="link-btn copy-btn" id="copyInviteBtn">点击复制并使用此邀请码18元开卡送4个抽奖钥匙</button>
+    </div>
+
+    <!-- 主抽奖页面 -->
+    <div id="mainPage">
+        <div class="header">
+            <h1>分会场抽奖模拟 - Test</h1>
+        </div>
+
+        <!-- 钥匙购买区 -->
+        <div class="purchase-section">
+            <h2>虚拟钥匙购买</h2>
+            <div class="key-btn-group">
+                <button class="key-btn" data-cost="10" data-keys="1">10币购买1钥匙</button>
+                <button class="key-btn" data-cost="100" data-keys="11">100币购买11钥匙</button>
+                <button class="key-btn" data-cost="500" data-keys="55">500币购买55钥匙</button>
+            </div>
+            <div class="stats">
+                <p>当前钥匙数量: <span id="currentKeys">0</span></p>
+                <p>累计购买钥匙: <span id="totalPurchasedKeys">0</span></p>
+            </div>
+            <button class="clear-cache" id="clearCacheBtn">清除缓存（重置所有数据）</button>
+        </div>
+
+        <!-- 抽奖区 -->
+        <div class="draw-section">
+            <h2>抽奖区</h2>
+            <div class="draw-btn-group">
+                <button class="draw-btn" id="singleDrawBtn">单抽 (消耗1钥匙)</button>
+                <button class="draw-btn" id="tenDrawBtn">十连抽 (消耗10钥匙)</button>
+            </div>
+            <div class="result-area" id="resultArea">
+                <!-- 抽奖结果会动态显示在这里 -->
+                <p>请点击抽奖按钮开始抽奖</p>
+            </div>
+        </div>
+
+        <!-- 奖池展示 -->
+        <div class="prize-pool">
+            <h2>奖池道具 (共17个)</h2>
+            <div class="prize-grid" id="prizeGrid">
+                <!-- 奖池道具会动态生成 -->
+            </div>
+        </div>
+
+        <!-- 暂存箱 -->
+        <div class="storage-box">
+            <h2>暂存箱 (可分解/发放)</h2>
+            <div class="storage-list" id="storageList">
+                暂存箱为空
+            </div>
+        </div>
+
+        <!-- 统计区 -->
+        <div class="stats-section">
+            <h2>抽奖统计</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <p>累计抽中总积分: <span id="totalPoints">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>幻神-YZK-2024MVP: <span id="count_1">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>白虎-传奇常旭: <span id="count_2">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>幻神-巅峰荣耀: <span id="count_3">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>柯尔特-无冕之王: <span id="count_4">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>黄金猫猫手套-白鲨: <span id="count_5">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>星神-斗虎: <span id="count_6">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>QBZ03-虎鱼: <span id="count_7">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>QBZ03-金色蔷薇-斗鱼: <span id="count_8">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>毁灭-斗鱼: <span id="count_9">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>麒麟刺-斗鱼平台: <span id="count_10">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>王者之石*1: <span id="count_11">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>66积分: <span id="count_12">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>20积分: <span id="count_13">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>10积分: <span id="count_14">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>8积分: <span id="count_15">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>6积分: <span id="count_16">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <p>5积分: <span id="count_17">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 免责声明 -->
+        <div class="disclaimer">
+            <h3>免责声明</h3>
+            <p>1. 本页面仅为活动模拟测试使用，所有测试活动内容仅供参考，不构成任何实际的活动承诺或法律责任。</p>
+            <p>2. 页面中涉及的链接仅为测试用途，请勿将其用于商业或非法用途，由此产生的一切后果由使用者自行承担。</p>
+            <p>3. 本页面的内容如有变动，恕不另行通知，主办方保留最终解释权。</p>
+            <p>4. 如因使用本页面导致任何损失或纠纷，主办方不承担任何直接或间接的责任。</p>
+            <p>5. 活动测试页面仅供内部人员测试参考，请勿泄露登入密码及本站链接</p>
+            <p>6. 活动模拟参考所有数据最终解释权归腾讯游戏所有</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. 密码验证逻辑
+        const passwordPage = document.getElementById('passwordPage');
+        const mainPage = document.getElementById('mainPage');
+        const passwordInput = document.getElementById('passwordInput');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const copyInviteBtn = document.getElementById('copyInviteBtn');
+        
+        // 验证密码
+        verifyBtn.addEventListener('click', () => {
+            if (passwordInput.value === 'xiaozhi') {
+                passwordPage.style.display = 'none';
+                mainPage.style.display = 'block';
+                // 初始化数据
+                initData();
+            } else {
+                alert('密码错误，请重新输入！');
+                passwordInput.value = '';
+            }
+        });
+
+        // 支持回车验证密码
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                verifyBtn.click();
+            }
+        });
+
+        // 复制邀请码
+        copyInviteBtn.addEventListener('click', () => {
+            const inviteCode = '#虹运连连升-7cmnbbtugqn9w1a1w0m4f3v';
+            // 兼容不支持clipboard API的浏览器
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(inviteCode).then(() => {
+                    alert('邀请码已复制：\n' + inviteCode);
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(inviteCode);
+                });
+            } else {
+                fallbackCopyTextToClipboard(inviteCode);
+            }
+        });
+
+        // 复制备用方案
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('邀请码已复制：\n' + text);
+            } catch (err) {
+                alert('复制失败，请手动复制：\n' + text);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // 2. 抽奖数据配置
+        const prizeConfig = [
+            { id: 1, name: '幻神-YZK-2024MVP 皮肤', probability: 0.10, type: 'skin', decomposeKeys: 15, image: 'images15/0205-_p4dj1.webp' },
+            { id: 2, name: '白虎-传奇常旭 皮肤', probability: 0.15, type: 'skin', decomposeKeys: 12, image: 'images15/0205-_p4dj2.webp' },
+            { id: 3, name: '幻神-巅峰荣耀', probability: 0.15, type: 'skin', decomposeKeys: 12, image: 'images15/0205-_p4dj3.webp' },
+            { id: 4, name: '柯尔特-无冕之王', probability: 0.20, type: 'skin', decomposeKeys: 10, image: 'images15/0205-_p4dj4.webp' },
+            { id: 5, name: '黄金猫猫手套-白鲨', probability: 0.25, type: 'skin', decomposeKeys: 8, image: 'images15/0205-_p4dj5.webp' },
+            { id: 6, name: '星神-斗虎 皮肤', probability: 0.30, type: 'skin', decomposeKeys: 8, image: 'images15/0205-_p4dj6.webp' },
+            { id: 7, name: 'QBZ03-虎鱼 皮肤', probability: 0.30, type: 'skin', decomposeKeys: 8, image: 'images15/0205-_p4dj7.webp' },
+            { id: 8, name: 'QBZ03-金色蔷薇-斗鱼皮肤', probability: 0.30, type: 'skin', decomposeKeys: 8, image: 'images15/0205-_p4dj8.webp' },
+            { id: 9, name: '毁灭-斗鱼 皮肤', probability: 0.50, type: 'skin', decomposeKeys: 4, image: 'images15/0205-_p4dj9.webp' },
+            { id: 10, name: '麒麟刺-斗鱼平台皮肤', probability: 0.80, type: 'skin', decomposeKeys: 2, image: 'images15/0205-_p4dj12.webp' },
+            { id: 11, name: '王者之石*1', probability: 4.35, type: 'stone', decomposeKeys: 0, image: 'images15/0205-_p4dj13.webp' },
+            { id: 12, name: '66积分', probability: 0.60, type: 'point', points: 66, image: 'images15/0205-_p4dj14.webp' },
+            { id: 13, name: '20积分', probability: 3.00, type: 'point', points: 20, image: 'images15/0205-_p4dj14.webp' },
+            { id: 14, name: '10积分', probability: 7.00, type: 'point', points: 10, image: 'images15/0205-_p4dj14.webp' },
+            { id: 15, name: '8积分', probability: 11.00, type: 'point', points: 8, image: 'images15/0205-_p4dj14.webp' },
+            { id: 16, name: '6积分', probability: 36.00, type: 'point', points: 6, image: 'images15/0205-_p4dj14.webp' },
+            { id: 17, name: '5积分', probability: 35.00, type: 'point', points: 5, image: 'images15/0205-_p4dj14.webp' }
+        ];
+
+        // 3. 全局数据
+        let appData = {
+            currentKeys: 0,          // 当前钥匙数
+            totalPurchasedKeys: 0,   // 累计购买钥匙数
+            totalPoints: 0,          // 累计积分
+            prizeCounts: {},         // 道具累计数量
+            storageBox: [],          // 暂存箱
+        };
+
+        // 初始化数据
+        function initData() {
+            // 初始化道具计数
+            prizeConfig.forEach(prize => {
+                appData.prizeCounts[prize.id] = 0;
+            });
+            
+            // 从本地存储加载数据（如果有）
+            const savedData = localStorage.getItem('cfDrawData');
+            if (savedData) {
+                try {
+                    appData = JSON.parse(savedData);
+                    // 兼容旧数据结构
+                    if (!appData.prizeCounts) appData.prizeCounts = {};
+                    prizeConfig.forEach(prize => {
+                        if (appData.prizeCounts[prize.id] === undefined) {
+                            appData.prizeCounts[prize.id] = 0;
+                        }
+                    });
+                } catch (e) {
+                    console.error('加载本地数据失败', e);
+                    // 重置数据
+                    appData = {
+                        currentKeys: 0,
+                        totalPurchasedKeys: 0,
+                        totalPoints: 0,
+                        prizeCounts: {},
+                        storageBox: []
+                    };
+                    prizeConfig.forEach(prize => {
+                        appData.prizeCounts[prize.id] = 0;
+                    });
+                }
+            }
+            
+            updateUI();
+            // 生成奖池展示
+            generatePrizeGrid();
+            // 绑定事件
+            bindEvents();
+            
+            // 提示加载完成
+            console.log('抽奖模拟页面初始化完成');
+        }
+
+        // 4. UI更新函数
+        function updateUI() {
+            // 更新钥匙显示
+            document.getElementById('currentKeys').textContent = appData.currentKeys;
+            document.getElementById('totalPurchasedKeys').textContent = appData.totalPurchasedKeys;
+            
+            // 更新积分显示
+            document.getElementById('totalPoints').textContent = appData.totalPoints;
+            
+            // 更新道具计数
+            prizeConfig.forEach(prize => {
+                document.getElementById(`count_${prize.id}`).textContent = appData.prizeCounts[prize.id] || 0;
+            });
+            
+            // 更新暂存箱
+            updateStorageBox();
+            
+            // 更新按钮状态
+            document.getElementById('singleDrawBtn').disabled = appData.currentKeys < 1;
+            document.getElementById('tenDrawBtn').disabled = appData.currentKeys < 10;
+            
+            // 保存到本地存储（防抖，避免频繁存储）
+            if (window.saveTimeout) clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(() => {
+                localStorage.setItem('cfDrawData', JSON.stringify(appData));
+            }, 300);
+        }
+
+        // 更新暂存箱
+        function updateStorageBox() {
+            const storageList = document.getElementById('storageList');
+            if (appData.storageBox.length === 0) {
+                storageList.innerHTML = '<div style="text-align:center; color:#999;">暂存箱为空</div>';
+                return;
+            }
+            
+            let html = '';
+            appData.storageBox.forEach((item, index) => {
+                const prize = prizeConfig.find(p => p.id === item.id);
+                if (!prize) return; // 防止数据异常
+                
+                if (prize.type === 'skin') {
+                    html += `
+                        <div class="storage-item">
+                            <span>${prize.name}</span>
+                            <div class="storage-actions">
+                                <button class="decompose-btn" data-index="${index}">分解(${prize.decomposeKeys}钥匙)</button>
+                                <button class="send-btn" data-index="${index}">发往仓库</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="storage-item">
+                            <span>${prize.name}</span>
+                            <div class="storage-actions">
+                                <span style="color:#999;">不可操作</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            storageList.innerHTML = html;
+            
+            // 绑定暂存箱按钮事件
+            document.querySelectorAll('.decompose-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    decomposeItem(index);
+                });
+            });
+            
+            document.querySelectorAll('.send-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    sendToWarehouse(index);
+                });
+            });
+        }
+
+        // 5. 生成奖池展示
+        function generatePrizeGrid() {
+            const prizeGrid = document.getElementById('prizeGrid');
+            let html = '';
+            
+            prizeConfig.forEach(prize => {
+                html += `
+                    <div class="prize-item">
+                        <img src="${prize.image}" alt="${prize.name}" title="${prize.name} (概率${prize.probability}%)" 
+                             onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot;><text x=&quot;50%&quot; y=&quot;50%&quot; text-anchor=&quot;middle&quot; dominant-baseline=&quot;middle&quot; font-size=&quot;8&quot; fill=&quot;#999&quot;>图片加载失败</text></svg>'; this.alt='图片加载失败';">
+                        <p title="${prize.name}">${prize.name.length > 8 ? prize.name.substring(0,8)+'...' : prize.name}</p>
+                        <small>概率: ${prize.probability}%</small>
+                    </div>
+                `;
+            });
+            
+            prizeGrid.innerHTML = html;
+        }
+
+        // 6. 事件绑定
+        function bindEvents() {
+            // 钥匙购买按钮
+            document.querySelectorAll('.key-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const cost = parseInt(this.dataset.cost);
+                    const keys = parseInt(this.dataset.keys);
+                    
+                    if (confirm(`确认花费${cost}币购买${keys}个钥匙？`)) {
+                        appData.currentKeys += keys;
+                        appData.totalPurchasedKeys += keys;
+                        updateUI();
+                        alert(`购买成功！获得${keys}个钥匙`);
+                    }
+                });
+            });
+            
+            // 清除缓存按钮
+            document.getElementById('clearCacheBtn').addEventListener('click', () => {
+                if (confirm('确定要清除所有数据？此操作不可恢复！')) {
+                    localStorage.removeItem('cfDrawData');
+                    appData = {
+                        currentKeys: 0,
+                        totalPurchasedKeys: 0,
+                        totalPoints: 0,
+                        prizeCounts: {},
+                        storageBox: []
+                    };
+                    prizeConfig.forEach(prize => {
+                        appData.prizeCounts[prize.id] = 0;
+                    });
+                    updateUI();
+                    alert('缓存已清除，所有数据已重置！');
+                }
+            });
+            
+            // 单抽按钮
+            document.getElementById('singleDrawBtn').addEventListener('click', () => {
+                if (appData.currentKeys < 1) {
+                    alert('钥匙不足！');
+                    return;
+                }
+                
+                // 消耗钥匙
+                appData.currentKeys -= 1;
+                
+                // 执行抽奖
+                const prize = drawPrize();
+                
+                // 显示结果
+                const resultArea = document.getElementById('resultArea');
+                resultArea.innerHTML = `
+                    <div class="single-result">
+                        <p>恭喜抽中：${prize.name}</p>
+                        
+                       
+                    </div>
+                `;
+                
+                updateUI();
+            });
+            
+            // 十连抽按钮
+            document.getElementById('tenDrawBtn').addEventListener('click', () => {
+                if (appData.currentKeys < 10) {
+                    alert('钥匙不足！');
+                    return;
+                }
+                
+                // 消耗钥匙
+                appData.currentKeys -= 10;
+                
+                // 执行10次抽奖
+                const prizes = [];
+                for (let i = 0; i < 10; i++) {
+                    prizes.push(drawPrize());
+                }
+                
+                // 显示结果
+                const resultArea = document.getElementById('resultArea');
+                let html = '<div class="ten-result">';
+                prizes.forEach((prize, idx) => {
+                    html += `
+                        <div class="result-item">
+                            <p> ${prize.name}</p>
+                            
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                resultArea.innerHTML = html;
+                
+                updateUI();
+            });
+        }
+
+        // 7. 抽奖核心逻辑
+        function drawPrize() {
+            // 计算总概率
+            const totalProbability = prizeConfig.reduce((sum, p) => sum + p.probability, 0);
+            
+            // 生成随机数
+            let random = Math.random() * totalProbability;
+            
+            // 确定抽中的道具
+            let selectedPrize = null;
+            for (const prize of prizeConfig) {
+                random -= prize.probability;
+                if (random <= 0) {
+                    selectedPrize = prize;
+                    break;
+                }
+            }
+            
+            // 兜底（防止概率计算错误）
+            if (!selectedPrize) {
+                selectedPrize = prizeConfig[16]; // 默认5积分
+            }
+            
+            // 更新计数
+            appData.prizeCounts[selectedPrize.id] = (appData.prizeCounts[selectedPrize.id] || 0) + 1;
+            
+            // 处理积分
+            if (selectedPrize.type === 'point') {
+                appData.totalPoints += selectedPrize.points;
+            }
+            
+            // 处理暂存箱
+            if (selectedPrize.type === 'skin') {
+                // 皮肤加入暂存箱
+                appData.storageBox.push({ id: selectedPrize.id, name: selectedPrize.name });
+            } else if (selectedPrize.type === 'stone') {
+                // 王者之石直接发放（仅记录，不进暂存箱）
+                // 改为非阻塞提示，提升体验
+                setTimeout(() => {
+                    alert(`获得${selectedPrize.name}，已直接发放至仓库！`);
+                }, 100);
+            }
+            
+            return selectedPrize;
+        }
+
+        // 8. 暂存箱操作
+        // 分解道具
+        function decomposeItem(index) {
+            const item = appData.storageBox[index];
+            const prize = prizeConfig.find(p => p.id === item.id);
+            if (!prize) return;
+            
+            if (confirm(`确定分解【${prize.name}】获得${prize.decomposeKeys}个钥匙？`)) {
+                appData.currentKeys += prize.decomposeKeys;
+                appData.storageBox.splice(index, 1);
+                updateUI();
+                alert(`分解成功！获得${prize.decomposeKeys}个钥匙`);
+            }
+        }
+
+        // 发往仓库
+        function sendToWarehouse(index) {
+            const item = appData.storageBox[index];
+            const prize = prizeConfig.find(p => p.id === item.id);
+            if (!prize) return;
+            
+            if (confirm(`确定将【${prize.name}】发往游戏仓库？`)) {
+                appData.storageBox.splice(index, 1);
+                updateUI();
+                alert(`${prize.name}已成功发放至游戏仓库！`);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('CF抽奖模拟页面加载完成');
+        });
+    </script>
+</body>
+</html>

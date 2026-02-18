@@ -1,0 +1,724 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>活动模拟测试页面导航</title>
+    <!-- 自定义ICO图标 - 你修改这里的图片路径即可 -->
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
+        }
+
+        /* 修复背景样式冲突 + 优化适配 */
+        body {
+            padding: 0;
+            line-height: 1.6;
+            color: #e6e6e6;
+            min-height: 100vh; /* 确保背景覆盖全屏高度 */
+            position: relative; /* 为伪元素固定背景做准备 */
+            /* 渐变+背景图融合（解决重复定义冲突） */
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.7), rgba(22, 33, 62, 0.7), rgba(15, 52, 96, 0.7));
+            background-blend-mode: overlay;
+        }
+
+        /* 伪元素实现真正的固定背景（兼容所有设备） */
+        body::before {
+            content: "";
+            position: fixed; /* 绝对固定，滚动不移动 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* 放在内容下方 */
+            background-image: url("images/bj.jpg"); /* 你的背景图路径 */
+            background-size: cover; /* 按比例覆盖，不拉伸 */
+            background-position: center center; /* 始终居中 */
+            background-repeat: no-repeat;
+            opacity: 0.85; /* 调整透明度，平衡文字可读性 */
+        }
+
+        /* 针对不同设备的背景微调 */
+        @media screen and (max-width: 768px) {
+            body::before {
+                background-size: auto 100vh; /* 手机端优先保证高度覆盖 */
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body::before {
+                background-position: 70% center; /* 可根据图片内容调整偏移 */
+            }
+        }
+
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75); /* 降低遮罩透明度，更通透 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 0 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            /* 核心修改：RGBA实现背景半透，保留渐变质感 */
+            background: linear-gradient(145deg, rgba(45, 45, 68, 0.9), rgba(30, 30, 48, 0.9));
+            padding: 30px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(100, 149, 237, 0.3);
+            animation: modalFadeIn 0.5s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            position: relative;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .modal-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #007bff, #4dabf7);
+        }
+
+        .modal-link-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(90deg, #ff6b35, #ff8c69);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 0 auto;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(100, 149, 237, 0.3);
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+
+        .password-input:focus {
+            border-color: #007bff;
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .remember-box {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #b3b3cc;
+        }
+
+        .remember-checkbox {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: #007bff;
+        }
+
+        .confirm-btn {
+            padding: 14px 20px;
+            background: linear-gradient(90deg, #007bff, #4dabf7);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .confirm-btn:hover {
+            background: linear-gradient(90deg, #0056b3, #339af0);
+        }
+
+        .error-tip {
+            color: #ff6b6b;
+            margin-top: 12px;
+            display: none;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .page-content {
+            display: none;
+            animation: pageFadeIn 0.8s ease;
+        }
+
+        @keyframes pageFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .search-container {
+            max-width: 1200px;
+            margin: 30px auto 25px auto;
+            padding: 0 15px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid rgba(100, 149, 237, 0.3);
+            border-radius: 8px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+
+        .search-btn {
+            padding: 0 25px;
+            background: linear-gradient(90deg, #007bff, #4dabf7);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .blog-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .title-section {
+            text-align: center;
+            padding: 45px 30px;
+            /* 核心修改：标题区半透明 */
+            background: linear-gradient(145deg, rgba(45, 45, 68, 0.85), rgba(30, 30, 48, 0.85));
+            margin: 0 auto 30px auto;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 149, 237, 0.2);
+            max-width: 1170px;
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #ffffff;
+            background: linear-gradient(90deg, #4dabf7, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sub-title-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #b3b3cc;
+            flex-wrap: wrap;
+        }
+
+        .sub-title {
+            margin-bottom: 0;
+        }
+
+        /* QQ群图标样式优化 - 核心：水平对齐 */
+        .qq-group-icon {
+            display: inline-block;
+            vertical-align: middle;
+            width: 85px;
+            height: 22px;
+            border: 0;
+        }
+
+        .link-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(90deg, #ff6b35, #ff8c69);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .activity-box {
+            width: 100%;
+            margin: 0 auto 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+            /* 核心修改：活动卡片半透明 */
+            background: linear-gradient(145deg, rgba(45, 45, 68, 0.8), rgba(30, 30, 48, 0.8));
+            transition: all 0.4s ease;
+            border: 1px solid rgba(100, 149, 237, 0.2);
+        }
+
+        .activity-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (min-width: 576px) {
+            .activity-box {
+                flex-direction: row;
+                align-items: center;
+                padding: 25px;
+                width: 85%;
+            }
+        }
+
+        .activity-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(90deg, #007bff, #4dabf7);
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+
+        .new-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: linear-gradient(90deg, #ff6b35, #ff8c69);
+            color: white;
+            font-size: 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-weight: 500;
+        }
+
+        .activity-name {
+            font-size: 16px;
+            flex: 1;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            width: 100%;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        @media (min-width: 576px) {
+            .action-btn {
+                width: auto;
+            }
+        }
+
+        .enter-btn {
+            background: linear-gradient(90deg, #28a745, #38b000);
+        }
+        .custom-btn {
+            background: linear-gradient(90deg, #ffc107, #ffd300);
+            color: #212529;
+        }
+        .group-btn {
+            background: linear-gradient(90deg, #17a2b8, #087f93);
+        }
+
+        .disclaimer {
+            width: 100%;
+            margin: 40px auto 30px auto;
+            padding: 25px;
+            /* 核心修改：免责声明区半透明 */
+            background: linear-gradient(145deg, rgba(45, 45, 68, 0.8), rgba(30, 30, 48, 0.8));
+            border-radius: 12px;
+            font-size: 14px;
+            color: #b3b3cc;
+            line-height: 1.8;
+        }
+
+        @media (min-width: 576px) {
+            .disclaimer {
+                width: 85%;
+            }
+        }
+
+        .disclaimer h4 {
+            font-size: 17px;
+            color: #ffffff;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .empty-tip {
+            text-align: center;
+            padding: 60px 30px;
+            color: #b3b3cc;
+            font-size: 16px;
+            display: none;
+            /* 核心修改：空提示区半透明 */
+            background: linear-gradient(145deg, rgba(45, 45, 68, 0.8), rgba(30, 30, 48, 0.8));
+            border-radius: 12px;
+            margin: 20px auto;
+            max-width: 85%;
+        }
+
+        .safe-page{
+            /* 核心修改：安全页背景半透明 */
+            background:rgba(26, 26, 46, 0.95);
+            color:#fff;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            font-family:system-ui,sans-serif;
+        }
+        .safe-box{
+            max-width:400px;
+            width:100%;
+            /* 核心修改：安全页卡片半透明 */
+            background:rgba(45, 45, 68, 0.95);
+            padding:40px 30px;
+            border-radius:16px;
+            box-shadow:0 10px 30px rgba(0,0,0,.3);
+        }
+        .safe-title{
+            font-size:22px;
+            font-weight:600;
+            margin-bottom:16px;
+            color:#fff;
+        }
+        .safe-desc{
+            font-size:15px;
+            line-height:1.6;
+            color:#b3b3cc;
+            margin-bottom:30px;
+        }
+        .safe-btn{
+            display:inline-block;
+            width:100%;
+            padding:14px 20px;
+            background:linear-gradient(90deg,#28a745,#32cd32);
+            color:#fff;
+            border:none;
+            border-radius:8px;
+            font-size:16px;
+            font-weight:500;
+            cursor:pointer;
+            text-align:center;
+            margin-bottom:12px;
+        }
+        .safe-tip{
+            font-size:13px;
+            color:#888;
+            margin-top:16px;
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="password-modal" id="passwordModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">仅供内部人员参考，请勿用于商业用途</h3>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="modal-link-btn" target="_blank">点击获取访问密钥</a>
+        </div>
+        <input type="password" class="password-input" id="passwordInput" value="cf">
+        <div class="remember-box">
+            <input type="checkbox" class="remember-checkbox" id="rememberPwd" checked="">
+            <label for="rememberPwd">免输模式（仅本地保存）</label>
+        </div>
+        <button class="confirm-btn" id="confirmBtn">确认登入</button>
+        <p class="error-tip" id="errorTip">密码错误，请重新输入！</p>
+    </div>
+</div>
+
+<div class="page-content" id="pageContent" style="display: block;">
+    <div class="search-container">
+        <input type="text" class="search-input" id="activitySearch" placeholder="搜索活动名称...">
+        <button class="search-btn" id="searchBtn">搜索</button>
+    </div>
+    <div class="blog-container">
+        <div class="title-section">
+            <h1 class="main-title">活动模拟测试页面导航</h1>
+            <!-- 优化QQ群图标与文字的排版结构 -->
+            <div class="sub-title-wrap">
+                <span class="sub-title">活动测试页面仅供内部人员测试参考，请勿泄露登入密码及本站链接</span> 
+                <a target="_blank" href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info">
+                    <img class="qq-group-icon" src="//pub.idqqimg.com/wpa/images/group.png" alt="CF穿越火线活动群" title="CF穿越火线活动群">
+                </a>
+            </div>
+        </div>
+        <div id="activityList"><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">1</span>荣耀臻藏返场 - 模拟测试 <span class="new-tag">最新</span></div>
+            <a href="/index-14.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260130ryzc/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">2</span>KZY 年度MVP+传奇皮肤 - 模拟测试</div>
+            <a href="/index-15.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://cf.qq.com/cp/a20260205cfryzcfcact/index_douyu.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">3</span>祥骏福利汇 - 模拟测试</div>
+            <a href="/index-13.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260203cfyear/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">4</span>超导无界 量子共鸣 - 模拟测试</div>
+            <a href="/index-12.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260122cflzzx/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">5</span>王者堕天神登场 - 模拟测试</div>
+            <a href="/index-11.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260123wzstdc/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">6</span>枪枪爆头 虹运连连 - 模拟测试</div>
+            <a href="/index-10.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260123cfhfirst/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">7</span>末日崩坏 飓风来袭 - 模拟测试</div>
+            <a href="/index-9.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260113cfactivity/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">8</span>天绫舞神威启 - 模拟测试</div>
+            <a href="/index-8.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260113cfswdb/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">9</span>王者夺宝 - 模拟测试<span class="new-tag">暂未同步</span></div>
+            <a href="/index-7.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&amp;k=_vvDXRWuxJsDzdhleHjhP5TjHjJmeJNb&amp;authKey=x1jVIqaZYKoyGD%2BB7AuqYL9FeKikQfoU%2F38yA7YQ3C0soweePb3N9lXKBoGCDM5v&amp;noverify=0&amp;group_code=875198122" class="action-btn custom-btn" target="_blank">暂无地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">10</span>CF梅雀衔霜系列 - 模拟测试</div>
+            <a href="/index-6.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20251218cfactivity/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">11</span>影翼共启 厂牌联动 模拟测试</div>
+            <a href="/index-5.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20260112cfhyfc/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">12</span>王者轮回 模拟测试<span class="new-tag">暂未同步</span></div>
+            <a href="/index-4.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&amp;k=_vvDXRWuxJsDzdhleHjhP5TjHjJmeJNb&amp;authKey=x1jVIqaZYKoyGD%2BB7AuqYL9FeKikQfoU%2F38yA7YQ3C0soweePb3N9lXKBoGCDM5v&amp;noverify=0&amp;group_code=875198122" class="action-btn custom-btn" target="_blank">暂无地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">13</span>加利尔ACE天袭降临 模拟测试</div>
+            <a href="/index-3.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20251224cfactivity/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">14</span>舞台即战场 枪炮即高光 模拟测试</div>
+            <a href="/index-2.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/act/a20251229wtzc/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div><div class="activity-box">
+            <div class="activity-name"><span class="activity-number">15</span>CF Season Pass S7赛事通行证 模拟测试</div>
+            <a href="/index-1.html" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="https://act.daoju.qq.com/cp/a20251229pass/index.html" class="action-btn custom-btn" target="_blank">活动地址</a>
+            <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" class="action-btn group-btn" target="_blank">加入群聊</a>
+        </div></div>
+        <div class="empty-tip" id="emptyTip" style="display: none;">未找到相关活动，请更换关键词重试</div>
+        <div class="disclaimer">
+            <h4>免责声明</h4>
+            <p>1. 本页面仅为活动模拟测试使用，所有测试活动内容仅供参考。</p>
+            <p>2. 页面中涉及的链接仅为测试用途，请勿用于商业或非法用途。</p>
+            <p>3. 本页面内容如有变动，恕不另行通知。</p>
+            <p>4. 如因使用本页面导致任何损失，主办方不承担任何责任。</p>
+            <p>5. 活动测试页面仅供内部人员测试参考，请勿泄露登入密码及本站链接</p>
+            <p>6. 本模拟器抽取结果完全随机、纯靠运气、独立概率，所有奖项抽取概率一致，中奖数据仅为模拟参考，不代表实际概率。</p>
+            <p>7. 活动模拟参考所有数据最终解释权归腾讯游戏所有</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function isWechatOrQQ() {
+  const ua = navigator.userAgent.toLowerCase();
+  return /micromessenger|qq/.test(ua) && !/mqqbrowser/.test(ua);
+}
+
+function copyCurrentUrl() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    alert("链接已复制！请打开手机浏览器粘贴访问");
+  }).catch(() => {
+    alert("复制失败，请手动复制网址：\n" + url);
+  });
+}
+
+function showSafePage() {
+  document.body.innerHTML = `
+  <div class="safe-page">
+    <div class="safe-box">
+      <div class="safe-title">请在浏览器打开</div>
+      <div class="safe-desc">
+        1. 点击【复制链接】<br>
+        2. 打开手机浏览器<br>
+        3. 粘贴链接即可正常访问
+      </div>
+      <button class="safe-btn" id="copyBtn">复制链接</button>
+      <div class="safe-tip">仅用于活动模拟测试，非商业用途</div>
+    </div>
+  </div>
+  `;
+  document.getElementById('copyBtn').onclick = copyCurrentUrl;
+}
+
+if (isWechatOrQQ()) {
+  showSafePage();
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 123) e.preventDefault();
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 73) e.preventDefault();
+    if (e.ctrlKey && e.keyCode === 85) e.preventDefault();
+});
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+const correctPassword = 'cf';
+const passwordModal = document.getElementById('passwordModal');
+const passwordInput = document.getElementById('passwordInput');
+const rememberPwd = document.getElementById('rememberPwd');
+const confirmBtn = document.getElementById('confirmBtn');
+const errorTip = document.getElementById('errorTip');
+const pageContent = document.getElementById('pageContent');
+const activityList = document.getElementById('activityList');
+const activitySearch = document.getElementById('activitySearch');
+const searchBtn = document.getElementById('searchBtn');
+const emptyTip = document.getElementById('emptyTip');
+
+const activities = [
+    { sortNum: 1, name: '荣耀臻藏返场 - 模拟测试 - 概率已调整，清除本地缓存', enterUrl: '/index-14.html', customUrl: 'https://act.daoju.qq.com/act/a20260130ryzc/index.html', customText: '活动地址' },
+    { sortNum: 2, name: 'KZY 年度MVP+传奇皮肤 - 模拟测试', enterUrl: '/index-15.html', customUrl: 'https://cf.qq.com/cp/a20260205cfryzcfcact/index_douyu.html', customText: '活动地址' },
+    { sortNum: 3, name: '祥骏福利汇 - 模拟测试', enterUrl: '/index-13.html', customUrl: 'https://act.daoju.qq.com/act/a20260203cfyear/index.html', customText: '活动地址' },
+    { sortNum: 4, name: '超导无界 量子共鸣 - 模拟测试', enterUrl: '/index-12.html', customUrl: 'https://act.daoju.qq.com/act/a20260122cflzzx/index.html', customText: '活动地址' },
+    { sortNum: 5, name: '王者堕天神登场 - 模拟测试', enterUrl: '/index-11.html', customUrl: 'https://act.daoju.qq.com/act/a20260123wzstdc/index.html', customText: '活动地址' },
+    { sortNum: 6, name: '枪枪爆头 虹运连连 - 模拟测试', enterUrl: '/index-10.html', customUrl: 'https://act.daoju.qq.com/act/a20260123cfhfirst/index.html', customText: '活动地址' },
+    { sortNum: 7, name: '末日崩坏 飓风来袭 - 模拟测试', enterUrl: '/index-9.html', customUrl: 'https://act.daoju.qq.com/act/a20260113cfactivity/index.html', customText: '活动地址' },
+    { sortNum: 8, name: '天绫舞神威启 - 模拟测试', enterUrl: '/index-8.html', customUrl: 'https://act.daoju.qq.com/act/a20260113cfswdb/index.html', customText: '活动地址' },
+    { sortNum: 9, name: '王者夺宝 - 模拟测试', enterUrl: '/index-7.html', customUrl: 'http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=_vvDXRWuxJsDzdhleHjhP5TjHjJmeJNb&authKey=x1jVIqaZYKoyGD%2BB7AuqYL9FeKikQfoU%2F38yA7YQ3C0soweePb3N9lXKBoGCDM5v&noverify=0&group_code=875198122', customText: '暂无地址' },
+    { sortNum: 10, name: 'CF梅雀衔霜系列 - 模拟测试', enterUrl: '/index-6.html', customUrl: 'https://act.daoju.qq.com/act/a20251218cfactivity/index.html', customText: '活动地址' },
+    { sortNum: 11, name: '影翼共启 厂牌联动 模拟测试', enterUrl: '/index-5.html', customUrl: 'https://act.daoju.qq.com/act/a20260112cfhyfc/index.html', customText: '活动地址' },
+    { sortNum: 12, name: '王者轮回 模拟测试', enterUrl: '/index-4.html', customUrl: 'http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=_vvDXRWuxJsDzdhleHjhP5TjHjJmeJNb&authKey=x1jVIqaZYKoyGD%2BB7AuqYL9FeKikQfoU%2F38yA7YQ3C0soweePb3N9lXKBoGCDM5v&noverify=0&group_code=875198122', customText: '暂无地址' },
+    { sortNum: 13, name: '加利尔ACE天袭降临 模拟测试', enterUrl: '/index-3.html', customUrl: 'https://act.daoju.qq.com/act/a20251224cfactivity/index.html', customText: '活动地址' },
+    { sortNum: 14, name: '舞台即战场 枪炮即高光 模拟测试', enterUrl: '/index-2.html', customUrl: 'https://act.daoju.qq.com/act/a20251229wtzc/index.html', customText: '活动地址' },
+    { sortNum: 15, name: 'CF Season Pass S7赛事通行证 模拟测试', enterUrl: '/index-1.html', customUrl: 'https://act.daoju.qq.com/cp/a20251229pass/index.html', customText: '活动地址' }
+];
+
+function sortActivities() {
+    return [...activities].sort((a, b) => a.sortNum - b.sortNum);
+}
+
+function renderActivities(list) {
+    activityList.innerHTML = '';
+    emptyTip.style.display = 'none';
+    if (!list.length) { emptyTip.style.display = 'block'; return; }
+    list.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'activity-box';
+        const tag = i === 0 ? '<span class="new-tag">最新</span>' : '';
+        div.innerHTML = `
+            <div class="activity-name"><span class="activity-number">${item.sortNum}</span>${item.name}${tag}</div>
+            <a href="${item.enterUrl}" class="action-btn enter-btn" target="_blank">进入</a>
+            <a href="${item.customUrl}" class="action-btn custom-btn" target="_blank">${item.customText}</a>
+            <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=j7sS5rUTVtep1qlSU4vv6JLhRXMmD4e8&authKey=2yZgmbi2gONqhPjpvh7%2B7YUEh9eNERf4bvPDoyAQo9GAXP7KRIOdqk8rVloct9%2Bh&noverify=0&group_code=913566722" class="action-btn group-btn" target="_blank">加入群聊</a>
+        `;
+        activityList.appendChild(div);
+    });
+}
+
+function search() {
+    const key = activitySearch.value.toLowerCase().trim();
+    if (!key) { renderActivities(sortActivities()); return; }
+    const filter = activities.filter(a => a.name.toLowerCase().includes(key));
+    renderActivities(filter.sort((a,b)=>a.sortNum-b.sortNum));
+}
+
+function verify() {
+    if (passwordInput.value.trim() === correctPassword) {
+        rememberPwd.checked && localStorage.setItem('cf_activity_pwd', correctPassword);
+        passwordModal.style.display = 'none';
+        pageContent.style.display = 'block';
+        renderActivities(sortActivities());
+    } else {
+        errorTip.style.display = 'block';
+        setTimeout(()=>errorTip.style.display='none', 2000);
+    }
+}
+
+window.onload = () => {
+    const p = localStorage.getItem('cf_activity_pwd');
+    if (p) { passwordInput.value = p; }
+};
+confirmBtn.onclick = verify;
+passwordInput.onkeydown = e => e.key === 'Enter' && verify();
+searchBtn.onclick = search;
+activitySearch.onkeydown = e => e.key === 'Enter' && search();
+</script>
+
+</body></html>

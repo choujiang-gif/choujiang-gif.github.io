@@ -1,0 +1,749 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超导无界 量子共鸣 - 模拟测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #4a229b;
+            color: #fff;
+            padding: 10px;
+            line-height: 1.5;
+        }
+
+        /* 密码验证页面样式 */
+        .password-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #2d1a5a;
+            border: 2px solid #8bc3ff;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(139, 195, 255, 0.5);
+        }
+        .password-container h1 {
+            color: #00f5d4;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        .password-container .get-password {
+            display: block;
+            color: #00a8ff;
+            margin-bottom: 20px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .password-container input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #8bc3ff;
+            border-radius: 5px;
+            background-color: #3d257a;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .password-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #00f5d4;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .password-container button:hover {
+            background-color: #00d8b6;
+        }
+
+        /* 主内容容器（初始隐藏） */
+        .main-container {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 免责声明样式 */
+        .disclaimer {
+            background-color: #2d1a5a;
+            border: 1px solid #8bc3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        .disclaimer h3 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* 资源统计样式 */
+        .resource-stats {
+            display: flex;
+            justify-content: space-between;
+            background-color: #2d1a5a;
+            border: 1px solid #8bc3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .resource-stats .stat-item {
+            text-align: center;
+        }
+        .resource-stats .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00f5d4;
+        }
+
+        /* 钥匙购买样式 */
+        .key-shop {
+            background-color: #2d1a5a;
+            border: 1px solid #8bc3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .key-shop h2 {
+            color: #00f5d4;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .key-packages {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .key-package {
+            background-color: #3d257a;
+            border: 1px solid #8bc3ff;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .key-package button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            background-color: #00a8ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .key-package button:hover {
+            background-color: #0088cc;
+        }
+
+        /* 奖池标题 */
+        .pool-title {
+            width: 100%;
+            background: linear-gradient(to bottom, #6a42c7, #3a1a7b);
+            border: 2px solid #8bc3ff;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(139, 195, 255, 0.8);
+            margin-bottom: 15px;
+        }
+
+        /* 奖池容器 */
+        .pool-container {
+            background: #2d1a5a;
+            border: 2px solid #8bc3ff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(139, 195, 255, 0.5);
+            margin-bottom: 20px;
+        }
+
+        /* 道具网格 */
+        .prize-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        /* 道具项 */
+        .prize-item {
+            background: #3d257a;
+            border: 1px solid #8bc3ff;
+            border-radius: 5px;
+            padding: 8px 5px;
+            text-align: center;
+            position: relative;
+        }
+        .prize-tag {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 8px;
+            color: #fff;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .tag-up {
+            background-color: #ff4444;
+        }
+        .tag-first {
+            background-color: #ff8800;
+        }
+        .tag-trade {
+            background-color: #ff2222;
+        }
+        .tag-new {
+            background-color: #22aa22;
+        }
+        .prize-img {
+            width: 100%;
+            height: auto;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .prize-name {
+            color: #e0e0ff;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        /* 抽奖区域 */
+        .lottery-area {
+            background: #2d1a5a;
+            border: 2px solid #8bc3ff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(139, 195, 255, 0.5);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .lottery-btn {
+            width: 48%;
+            padding: 12px 0;
+            background: linear-gradient(to bottom, #ffd700, #ffaa00);
+            border: 2px solid #fff;
+            border-radius: 8px;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .lottery-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .lottery-option {
+            width: 100%;
+            margin-top: 10px;
+            color: #e0e0ff;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .lottery-option input {
+            margin-right: 5px;
+        }
+        .key-count {
+            color: #e0e0ff;
+            font-size: 14px;
+            margin-top: 10px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* 抽奖结果样式 */
+        .lottery-result {
+            background-color: #2d1a5a;
+            border: 1px solid #8bc3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .single-result {
+            background-color: #3d257a;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .ten-result {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .result-item {
+            background-color: #3d257a;
+            padding: 10px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            border: 1px solid #8bc3ff;
+        }
+
+        /* 暂存箱样式 */
+        .storage-box {
+            background-color: #2d1a5a;
+            border: 2px solid #8bc3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .storage-box h2 {
+            color: #00f5d4;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .storage-items {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #3d257a;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .storage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #444;
+        }
+        .storage-item:last-child {
+            border-bottom: none;
+        }
+        .storage-actions button {
+            padding: 5px 8px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .decompose-btn {
+            background-color: #ff6b6b;
+            color: #fff;
+        }
+        .send-btn {
+            background-color: #00f5d4;
+            color: #1a1a2e;
+        }
+
+        /* 适配手机端 */
+        @media (max-width: 480px) {
+            .key-packages {
+                grid-template-columns: 1fr;
+            }
+            .prize-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .lottery-btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .ten-result {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .resource-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 密码验证页面 -->
+    <div class="password-container">
+        <h1>超导无界 量子共鸣 模拟测试</h1>
+        <a href="https://qun.qq.com/universal-share/share?ac=1&authKey=E3yNVWUOPI2ixwKfD5SO47s8V%2B2gdUytnJmyVVIMGydl4nyxUCp24IX7SXaH3YQT&busi_data=eyJncm91cENvZGUiOiIxMDc1OTUwMzAyIiwidG9rZW4iOiJmekVKT2RxWHRiRlN5TURDVzR4WDgwWkFLOHlYTjRjN1UwOUttclM5UEs1MStwdFBCTktTZ01ySnlRV0dZV0VUIiwidWluIjoiMTQzNjI1MDc2NCJ9&data=mtb29KWOBuatHaCrAwLbOJTl5f8aFj-Im1HB0aIVVQeQ8S0IETBzZWIlgUzRdDrv_rgL9VZ2Id2WI71am29p-A&svctype=4&tempid=h5_group_info" 
+           class="get-password" target="_blank">点击获取访问密码</a>
+        <input type="password" id="passwordInput" placeholder="请输入访问密码">
+        <button onclick="checkPassword()">验证并进入</button>
+    </div>
+
+    <!-- 主内容容器 -->
+    <div class="main-container">
+        <!-- 免责声明 -->
+        <div class="disclaimer">
+            <h3>免责声明</h3>
+            <p>1. 本页面仅为活动模拟测试使用，所有测试活动内容仅供参考，不构成任何实际的活动承诺或法律责任。</p>
+            <p>2. 页面中涉及的链接仅为测试用途，请勿将其用于商业或非法用途，由此产生的一切后果由使用者自行承担。</p>
+            <p>3. 本页面的内容如有变动，恕不另行通知，主办方保留最终解释权。</p>
+            <p>4. 如因使用本页面导致任何损失或纠纷，主办方不承担任何直接或间接的责任。</p>
+            <p>5. 活动测试页面仅供内部人员测试参考，请勿泄露登入密码及本站链接</p>
+            <p>6. 活动模拟参考所有数据最终解释权归腾讯游戏所有</p>
+        </div>
+
+        <!-- 资源统计 -->
+        <div class="resource-stats">
+            <div class="stat-item">
+                <div>钥匙数量</div>
+                <div class="stat-value" id="keyCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div>总积分</div>
+                <div class="stat-value" id="totalPoints">0</div>
+            </div>
+        </div>
+
+        <!-- 钥匙购买区域 -->
+        <div class="key-shop">
+            <h2>虚拟测试 获取钥匙</h2>
+            <div class="key-packages">
+                <div class="key-package">
+                    <div>10马尼 = 1钥匙</div>
+                    <button onclick="buyKeys(1, 10)">立即购买</button>
+                </div>
+                <div class="key-package">
+                    <div>100马尼 = 11钥匙</div>
+                    <button onclick="buyKeys(11, 100)">立即购买</button>
+                </div>
+                <div class="key-package">
+                    <div>500马尼 = 55钥匙</div>
+                    <button onclick="buyKeys(55, 500)">立即购买</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 奖池标题 -->
+        <div class="pool-title">主奖池 已同步官方概率</div>
+
+        <!-- 奖池容器 -->
+        <div class="pool-container">
+            <div class="prize-grid">
+                <!-- 第一行道具 -->
+                <div class="prize-item">
+
+                    <img src="images12/polc1.webp" class="prize-img">
+                    <div class="prize-name">Kar98K-量子之心</div>
+                </div>
+                <div class="prize-item">
+
+                    <img src="images12/polc2.webp" class="prize-img">
+                    <div class="prize-name">智</div>
+                </div>
+                <div class="prize-item">
+
+                    <img src="images12/polc3.webp" class="prize-img">
+                    <div class="prize-name">Anaconda-量子之心</div>
+                </div>
+                <div class="prize-item">
+
+                    <img src="images12/polc5.webp" class="prize-img">
+                    <div class="prize-name">玄武-量子聚变皮肤</div>
+                </div>
+                <div class="prize-item">
+
+                    <img src="images12/polc4.webp" class="prize-img">
+                    <div class="prize-name">裁决-量子聚变皮肤</div>
+                </div>
+
+                <!-- 第二行道具 -->
+                <div class="prize-item">
+
+                    <img src="images12/polc6.webp" class="prize-img">
+                    <div class="prize-name">HK417-朱雀-量子聚变皮肤</div>
+                </div>
+                <div class="prize-item">
+
+                    <img src="images12/polc8.webp" class="prize-img">
+                    <div class="prize-name">雷神-研</div>
+                </div>
+                <div class="prize-item">
+
+                    <img src="images12/polc9.webp" class="prize-img">
+                    <div class="prize-name">扳手-量子之心</div>
+                </div>
+                <div class="prize-item">
+
+                    <img src="images12/polc12.webp" class="prize-img">
+                    <div class="prize-name">高爆手雷-量子之心</div>
+                </div>
+                <div class="prize-item">
+                    <img src="images12/polc13.webp" class="prize-img">
+                    <div class="prize-name">烟雾弹-量子之心</div>
+                </div>
+
+                <!-- 第三行道具 -->
+                <div class="prize-item">
+                    <img src="images12/polc14.webp" class="prize-img">
+                    <div class="prize-name">闪光弹-量子之心</div>
+                </div>
+                <div class="prize-item">
+                    <img src="images12/polc15.webp" class="prize-img">
+                    <div class="prize-name">普通角色通用扩展栏位x1</div>
+                </div>
+                <div class="prize-item">
+                    <img src="images12/polc24.webp" class="prize-img">
+                    <div class="prize-name">王者之石礼盒x1</div>
+                </div>
+                <div class="prize-item">
+                    <img src="images12/polc24.webp" class="prize-img">
+                    <div class="prize-name">积分</div>
+                </div>
+                <div class="prize-item">
+                    <!-- 占位 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 抽奖区域 -->
+        <div class="lottery-area">
+            <button class="lottery-btn single-draw" onclick="singleDraw()">抽奖1次 (1钥匙)</button>
+            <button class="lottery-btn ten-draw" onclick="tenDraw()">抽奖十次 (10钥匙)</button>
+            <div class="lottery-option">
+                <input type="checkbox" id="noPopup">
+                <label for="noPopup">中奖后不再单独弹出奖励弹窗</label>
+            </div>
+            <div class="key-count">剩余钥匙: <span id="lotteryKeyCount">0</span></div>
+        </div>
+
+        <!-- 抽奖结果 -->
+        <div class="lottery-result" id="lotteryResult">
+            点击抽奖按钮开始抽奖
+        </div>
+
+        <!-- 暂存箱 -->
+        <div class="storage-box">
+            <h2>暂存箱</h2>
+            <div class="storage-items" id="storageItems">
+                <div style="text-align: center; color: #888;">暂无道具</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局数据
+        let userData = {
+            keys: 0,          // 钥匙数量
+            totalPoints: 0,   // 总积分
+            storage: []       // 暂存箱道具
+        };
+
+        // 道具配置（可调整概率和分解钥匙数）
+        const prizeConfig = [
+            // 可分解道具（存入暂存箱）
+            { name: "Kar98K-量子之心", probability: 0.3, decomposeKeys: 12 },
+            { name: "智", probability: 0.4, decomposeKeys: 10 },
+            { name: "Anaconda-量子之心", probability: 0.7, decomposeKeys: 6 },
+            { name: "玄武-量子聚变 皮肤", probability: 0.5, decomposeKeys: 6 },
+            { name: "裁决-量子聚变 皮肤", probability: 0.6, decomposeKeys: 5 },
+            { name: "HK417-朱雀-量子聚变 皮肤", probability: 0.6, decomposeKeys: 5 },
+            { name: "雷神-研", probability: 0.8, decomposeKeys: 3 },
+            { name: "扳手-量子之心", probability: 1.0, decomposeKeys: 3 },
+            { name: "高爆手雷-量子之心", probability: 1.0, decomposeKeys: 1 },
+            { name: "烟雾弹-量子之心", probability: 1.5, decomposeKeys: 1 },
+            { name: "闪光弹-量子之心", probability: 1.5, decomposeKeys: 1 },
+            { name: "普通角色通用扩展栏位x1", probability: 1.0, decomposeKeys: 1 },
+            { name: "王者之石礼盒x1", probability: 2.9, decomposeKeys: 0 },
+            
+            // 积分道具（直接计入积分）
+            { name: "积分x100", probability: 0.2, points: 100 },
+            { name: "积分x15", probability: 2.0, points: 15 },
+            { name: "积分x9", probability: 10.0, points: 9 },
+            { name: "积分x8", probability: 35.0, points: 8 },
+            { name: "积分x7", probability: 40.0, points: 7 }
+        ];
+
+        // 密码验证
+        function checkPassword() {
+            const input = document.getElementById("passwordInput").value;
+            if (input === "xiaozhi") {
+                document.querySelector(".password-container").style.display = "none";
+                document.querySelector(".main-container").style.display = "block";
+                updateStats();
+            } else {
+                alert("密码错误，请重新输入！");
+            }
+        }
+
+        // 更新资源统计显示
+        function updateStats() {
+            document.getElementById("keyCount").textContent = userData.keys;
+            document.getElementById("lotteryKeyCount").textContent = userData.keys;
+            document.getElementById("totalPoints").textContent = userData.totalPoints;
+            
+            // 禁用/启用抽奖按钮
+            document.querySelector(".single-draw").disabled = userData.keys < 1;
+            document.querySelector(".ten-draw").disabled = userData.keys < 10;
+        }
+
+        // 购买钥匙
+        function buyKeys(keys, price) {
+            if (confirm(`确认花费${price}元购买${keys}个钥匙吗？`)) {
+                userData.keys += keys;
+                updateStats();
+                alert(`购买成功！获得${keys}个钥匙`);
+            }
+        }
+
+        // 随机抽取一个道具
+        function drawPrize() {
+            // 计算总概率
+            const totalProb = prizeConfig.reduce((sum, prize) => sum + prize.probability, 0);
+            let random = Math.random() * totalProb;
+            let selectedPrize = null;
+
+            // 根据概率抽取道具
+            for (const prize of prizeConfig) {
+                random -= prize.probability;
+                if (random <= 0) {
+                    selectedPrize = { ...prize };
+                    break;
+                }
+            }
+
+            return selectedPrize;
+        }
+
+        // 单抽
+        function singleDraw() {
+            if (userData.keys < 1) {
+                alert("钥匙数量不足！");
+                return;
+            }
+
+            // 扣除钥匙
+            userData.keys -= 1;
+            updateStats();
+
+            // 抽取道具
+            const prize = drawPrize();
+            const resultEl = document.getElementById("lotteryResult");
+
+            // 处理积分道具
+            if (prize.points) {
+                userData.totalPoints += prize.points;
+                updateStats();
+                resultEl.innerHTML = `
+                    <div class="single-result">
+                        恭喜抽中：${prize.name} <br>
+                        积分+${prize.points}，总积分：${userData.totalPoints}
+                    </div>
+                `;
+            } else {
+                // 可分解道具存入暂存箱
+                userData.storage.push(prize);
+                resultEl.innerHTML = `
+                    <div class="single-result">
+                        恭喜抽中：${prize.name} <br>
+                        已存入暂存箱
+                    </div>
+                `;
+                updateStorageBox();
+            }
+        }
+
+        // 十连抽
+        function tenDraw() {
+            if (userData.keys < 10) {
+                alert("钥匙数量不足！");
+                return;
+            }
+
+            // 扣除钥匙
+            userData.keys -= 10;
+            updateStats();
+
+            const resultEl = document.getElementById("lotteryResult");
+            let prizes = [];
+            let html = '<div class="ten-result">';
+            let totalPointsGained = 0;
+
+            // 抽取10个道具
+            for (let i = 0; i < 10; i++) {
+                const prize = drawPrize();
+                prizes.push(prize);
+
+                // 构建十连抽显示（上5下5）
+                html += `<div class="result-item">${prize.name}</div>`;
+
+                // 处理积分道具
+                if (prize.points) {
+                    totalPointsGained += prize.points;
+                    userData.totalPoints += prize.points;
+                } else {
+                    // 可分解道具存入暂存箱
+                    userData.storage.push(prize);
+                }
+            }
+
+            html += '</div>';
+            if (totalPointsGained > 0) {
+                html += `<div style="margin-top:10px;">本次获得积分：${totalPointsGained}，总积分：${userData.totalPoints}</div>`;
+            }
+
+            resultEl.innerHTML = html;
+            updateStats();
+            updateStorageBox();
+        }
+
+        // 更新暂存箱
+        function updateStorageBox() {
+            const storageEl = document.getElementById("storageItems");
+            
+            if (userData.storage.length === 0) {
+                storageEl.innerHTML = '<div style="text-align: center; color: #888;">暂无道具</div>';
+                return;
+            }
+
+            let html = '';
+            userData.storage.forEach((item, index) => {
+                html += `
+                    <div class="storage-item">
+                        <div>${item.name}</div>
+                        <div class="storage-actions">
+                            <button class="decompose-btn" onclick="decomposeItem(${index})">分解(${item.decomposeKeys}钥匙)</button>
+                            <button class="send-btn" onclick="sendToWarehouse(${index})">发往仓库</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            storageEl.innerHTML = html;
+        }
+
+        // 分解道具
+        function decomposeItem(index) {
+            const item = userData.storage[index];
+            if (confirm(`确认分解【${item.name}】获得${item.decomposeKeys}个钥匙吗？`)) {
+                userData.keys += item.decomposeKeys;
+                userData.storage.splice(index, 1);
+                updateStats();
+                updateStorageBox();
+                alert(`分解成功！获得${item.decomposeKeys}个钥匙`);
+            }
+        }
+
+        // 发往仓库
+        function sendToWarehouse(index) {
+            const item = userData.storage[index];
+            if (confirm(`确认将【${item.name}】发往游戏仓库吗？`)) {
+                userData.storage.splice(index, 1);
+                updateStorageBox();
+                alert(`【${item.name}】已成功发往仓库！`);
+            }
+        }
+    </script>
+</body>
+</html>
